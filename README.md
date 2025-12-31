@@ -227,7 +227,7 @@ Comandos principales:
 
 * **Logs y seguimiento:**
    * Los registros de ejecución se guardan en `/var/log/omv-regen.log`
-   * Los registros de la regeneración se guardan en `/var/lib/omv-regen/regen.log`
+   * Los registros de la regeneración se guardan temporalmente en `/var/lib/omv-regen/regen.log` hasta la finalización.
    * Si la regeneración se interrumpe, puedes reanudarla ejecutando de nuevo `omv-regen`
 
 * **Compatibilidad de versiones:**
@@ -498,7 +498,7 @@ Main commands:
 
 * **Logs and monitoring:**
    * Execution logs are saved in `/var/log/omv-regen.log`.
-   * Regeneration logs are saved in `/var/lib/omv-regen/regen.log`
+   * Regeneration logs are temporarily stored in `/var/lib/omv-regen/regen.log` until completion.
    * If regeneration is interrupted, you can resume it by running `omv-regen` again.
 
 * **Version compatibility:**
