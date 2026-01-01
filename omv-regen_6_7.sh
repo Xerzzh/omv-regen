@@ -5171,6 +5171,10 @@ RegeneraFase3() {
 
     echoe ">>> Instalando kernel proxmox: $KernelOriginal para sustituir al actual: $kernel_instalado" \
           ">>> Installing proxmox kernel: $KernelOriginal to replace the current one: $kernel_instalado"
+    echoe ">>> Esta fase puede tardar varios minutos sin mostrar salida visible. El sistema NO está colgado." \
+          ">>> This step may take several minutes with little or no visible output. The system is NOT frozen."
+    echoe ">>> No reinicie ni interrumpa el proceso mientras se instalan kernel y firmware." \
+          ">>> Do not reboot or interrupt the process while kernel and firmware are being installed."
     if [ -f "$script_installproxmox" ]; then
         # shellcheck disable=SC1090
         ( . "$script_installproxmox" "$KernelOriginal" ) | _orl
