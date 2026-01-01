@@ -100,7 +100,7 @@ Comandos principales:
 
 ## INSTALACIÓN Y REGENERACIÓN DESDE LA ISO DE OPENMEDIAVAULT
 
-* Instala OpenMediaVault con la ISO correspondiente a la versión (6.0/7.0) que necesites.
+* Instala OpenMediaVault con la ISO correspondiente a la versión (6.0/7.0/8.0) que necesites.
 * No actualices el sistema, deja que lo haga *omv-regen* para adecuar las versiones a las del sistema original.
 * Instala *omv-regen*:
   ```
@@ -213,7 +213,7 @@ Comandos principales:
    * Si OMV no está instalado, *omv-regen* instala OMV utilizando el script de instalación de OMV de Aaron Murray.
       * Esta instalación añade *omv-extras* al sistema, incluso si no estaba en el sistema original.
    * Se instalan las versiones del sistema original de OMV y complementos y se retienen hasta finalizar.
-   * Se sustituyen partes de la base de datos siguiendo un orden lógico y ejecutando comandos de *SaltStack* para aplicar configuraciones.
+   * Se sustituye la base de datos por fases siguiendo un orden lógico, ejecutando comandos de *SaltStack* para aplicar configuraciones.
    * Al finalizar, se liberan las retenciones y se actualiza el sistema a la última versión de cada paquete.
 
 * **Características especiales:**
@@ -370,7 +370,7 @@ Main commands:
 
 ## INSTALLATION AND REGENERATION FROM THE OPENMEDIAVAULT ISO
 
-* Install OpenMediaVault with the ISO corresponding to the version (6.0/7.0) you need.
+* Install OpenMediaVault with the ISO corresponding to the version (6.0/7.0/8.0) you need.
 * Do not update the system; let *omv-regen* handle it to match the original versions.
 * Install *omv-regen*:
   ```
@@ -484,7 +484,7 @@ Main commands:
    * If OMV is not installed, it is installed using Aaron Murray’s OMV installation script.
       * This installation includes *omv-extras* even if it was not part of the original system.
    * The original versions of OMV and plugins are installed and held until completion.
-   * Parts of the database are replaced in logical order, executing SaltStack commands to apply configurations.
+   * The database is replaced in phases following a logical order, executing *SaltStack* commands to apply configurations.
    * At the end, holds are released and the system is safely updated to the latest package versions.
 
 * **Special features:**
