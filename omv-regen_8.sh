@@ -3125,8 +3125,8 @@ Regenera_es_Valido() {
         if ! regen_en_progreso; then
             # Comprobar estado del sistema actual
             # Check current system status
-            if { [[ "$(dpkg -l | grep -c  openmediavault)" -gt 2 ]] && ! dpkg -l | grep -q omvextrasorg; } \
-                || [[ "$(dpkg -l | grep -c  openmediavault)" -gt 4 ]]; then
+            if { [[ "$(dpkg -l | grep -c  openmediavault)" -gt 3 ]] && ! dpkg -l | grep -q omvextrasorg; } \
+                || [[ "$(dpkg -l | grep -c  openmediavault)" -gt 5 ]]; then
                 ErrorValRegen="$ErrorValRegen sistema_configurado "
                 error log "Se han detectado complementos instalados previamente a la regeneración." \
                           "Plug-ins installed prior to the regeneration have been detected."
