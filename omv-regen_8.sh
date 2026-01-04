@@ -2932,7 +2932,7 @@ EjecutarBackup () {
     if [ "${CFG[OmitirRoot]}" = "No" ]; then
         echoe sil ">>> Copiando carpeta /root a $dir_regen ..." \
                   ">>> Copying /root folder to $dir_regen ..."
-        rsync -a /root/ "${dir_regen}/root" --exclude '*.deb' --exclude '.cache/pip' | _orl sil || return 1
+        rsync -a /root/ "${dir_regen}/root" --exclude '.cache/' --exclude '*.deb' | _orl sil || return 1
     else
         echoe sil ">>> AVISO: La carpeta /root no está incluida en el backup. Omitir /root puede provocar resultados inesperados al regenerar." \
                   ">>> WARNING: The /root folder is not included in the backup. Omitting /root may cause unexpected results when regenerating."
