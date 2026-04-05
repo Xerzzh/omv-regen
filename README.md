@@ -18,7 +18,7 @@
 Copia y pega la siguiente linea en una terminal y ejecútala como *root* o con *sudo*.
 
 ```
-wget -O - https://raw.githubusercontent.com/xhente/omv-regen/master/omv-regen.sh | sudo bash
+wget -O - https://raw.githubusercontent.com/xerzzh/omv-regen/master/omv-regen.sh | sudo bash
 ```
 
 * **PASO 1.** Crea un backup del sistema original con `omv-regen`
@@ -104,7 +104,7 @@ Comandos principales:
 * No actualices el sistema, deja que lo haga *omv-regen* para adecuar las versiones a las del sistema original.
 * Instala *omv-regen*:
   ```
-  wget -O - https://raw.githubusercontent.com/xhente/omv-regen/master/omv-regen.sh | bash
+  wget -O - https://raw.githubusercontent.com/xerzzh/omv-regen/master/omv-regen.sh | bash
   ```
 * Copia el backup al servidor, inicia `omv-regen` y ejecuta la regeneración.
 
@@ -140,7 +140,7 @@ Comandos principales:
   apt-get update
   apt-get upgrade -y 
   apt-get install wget -y
-  wget -O - https://raw.githubusercontent.com/xhente/omv-regen/master/omv-regen.sh | bash
+  wget -O - https://raw.githubusercontent.com/xerzzh/omv-regen/master/omv-regen.sh | bash
   ```
 * Copia el backup al servidor (*WinSCP*), inicia `omv-regen` y ejecuta la regeneración. *omv-regen* instalará OMV y continuará la regeneración.
 
@@ -266,7 +266,7 @@ Comandos principales:
 
 Espero que omv-regen te haya resultado útil, si quieres puedes invitarme a un café. ¡Muchas gracias!
 
-[<img alt="buy me  a coffee" width="200px" src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" />](https://www.buymeacoffee.com/xhente)
+[<img alt="buy me  a coffee" width="200px" src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" />](https://www.buymeacoffee.com/xerzzh)
 
 _____________________________________________________________________________________________________________________
 
@@ -288,7 +288,7 @@ ________________________________________________________________________________
 Copy and paste the following line into a terminal and run it as root or with sudo:
 
 ```
-wget -O - https://raw.githubusercontent.com/xhente/omv-regen/master/omv-regen.sh | sudo bash
+wget -O - https://raw.githubusercontent.com/xerzzh/omv-regen/master/omv-regen.sh | sudo bash
 ```
 
 * **STEP 1.** Create a backup of the original system using `omv-regen`.
@@ -374,7 +374,7 @@ Main commands:
 * Do not update the system; let *omv-regen* handle it to match the original versions.
 * Install *omv-regen*:
   ```
-  wget -O - https://raw.githubusercontent.com/xhente/omv-regen/master/omv-regen.sh | bash
+  wget -O - https://raw.githubusercontent.com/xerzzh/omv-regen/master/omv-regen.sh | bash
   ```
 * Copy the backup to the server, start `omv-regen`, and run regeneration.
 
@@ -410,7 +410,7 @@ Main commands:
   apt-get update
   apt-get upgrade -y
   apt-get install wget -y
-  wget -O - https://raw.githubusercontent.com/xhente/omv-regen/master/omv-regen.sh | bash
+  wget -O - https://raw.githubusercontent.com/xerzzh/omv-regen/master/omv-regen.sh | bash
   ```
 * Copy the backup to the server (*WinSCP*), start `omv-regen`, and run regeneration. *omv-regen* will install OMV and continue regeneration.
 
@@ -538,4 +538,4 @@ Main commands:
 
 I hope that omv-regen has been useful to you, if you want you can buy me a coffee. Thank you so much!
 
-[<img alt="buy me  a coffee" width="200px" src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" />](https://www.buymeacoffee.com/xhente)
+[<img alt="buy me  a coffee" width="200px" src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" />](https://www.buymeacoffee.com/xerzzh)

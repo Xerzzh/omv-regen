@@ -123,7 +123,7 @@ NO_OMITIR=("openmediavault" "openmediavault-keyring" "openmediavault-kernel" "op
 NO_OMITIR=( "${NO_OMITIR[@]}" "${SISTEMA_ARCHIVOS[@]}" )
 
 # URLs
-URL_OMVREGEN="https://raw.githubusercontent.com/xhente/omv-regen/master"
+URL_OMVREGEN="https://raw.githubusercontent.com/xerzzh/omv-regen/master"
 URL_OMVREGEN_SCRIPT="$URL_OMVREGEN/omv-regen_8.sh"
 URL_OMVREGEN_README="$URL_OMVREGEN/README.md"
 URL_OMVREGEN_INSTALL="$URL_OMVREGEN/omv-regen.sh"

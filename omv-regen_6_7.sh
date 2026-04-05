@@ -123,13 +123,13 @@ NO_OMITIR=("openmediavault" "openmediavault-keyring" "openmediavault-kernel" "op
 NO_OMITIR=( "${NO_OMITIR[@]}" "${SISTEMA_ARCHIVOS[@]}" )
 
 # URLs
-URL_OMVREGEN_SCRIPT="https://raw.githubusercontent.com/xhente/omv-regen/master/omv-regen_6_7.sh"
+URL_OMVREGEN_SCRIPT="https://raw.githubusercontent.com/xerzzh/omv-regen/master/omv-regen_6_7.sh"
 URL_OPENMEDIAVAULT_PAQUETES="https://packages.openmediavault.org/public/pool/main/o/"
 URL_OMVEXTRAS="https://github.com/OpenMediaVault-Plugin-Developers/packages/raw/master"
 # shellcheck disable=SC2034
 URL_RASPBERRY_PREINSTALL_SCRIPT="https://raw.githubusercontent.com/OpenMediaVault-Plugin-Developers/installScript/master/preinstall"
 URL_OMV_INSTALL_SCRIPT="https://raw.githubusercontent.com/OpenMediaVault-Plugin-Developers/installScript/master/installOld7"
-URL_OMVREGEN_INSTALL="https://raw.githubusercontent.com/xhente/omv-regen/master/omv-regen.sh"
+URL_OMVREGEN_INSTALL="https://raw.githubusercontent.com/xerzzh/omv-regen/master/omv-regen.sh"
 
 # Códigos de color
 # Color codes
@@ -437,7 +437,7 @@ txt AyudaOmvregen \
 \n- No actualices el sistema, deja que lo haga omv-regen para adecuar las versiones a las del sistema original. \
 \n- Instala omv-regen: \
 \n \
-\n     'wget -O - https://raw.githubusercontent.com/xhente/omv-regen/master/omv-regen.sh | bash' \
+\n     'wget -O - https://raw.githubusercontent.com/xerzzh/omv-regen/master/omv-regen.sh | bash' \
 \n \
 \n- Copia el backup al servidor, inicia 'omv-regen' y ejecuta la regeneración. \
 \n \
@@ -472,7 +472,7 @@ txt AyudaOmvregen \
 \n     'apt-get update' \
 \n     'apt-get upgrade -y'  \
 \n     'apt-get install wget -y' \
-\n     'wget -O - https://raw.githubusercontent.com/xhente/omv-regen/master/omv-regen.sh | bash' \
+\n     'wget -O - https://raw.githubusercontent.com/xerzzh/omv-regen/master/omv-regen.sh | bash' \
 \n \
 \n- Copia el backup al servidor (WinSCP), inicia 'omv-regen' y ejecuta la regeneración. omv-regen instalará OMV y continuará la regeneración. \
 \n \
@@ -671,7 +671,7 @@ txt AyudaOmvregen \
 \n- Do not update the system; let omv-regen handle it to match the original versions. \
 \n- Install omv-regen: \
 \n \
-\n     'wget -O - https://raw.githubusercontent.com/xhente/omv-regen/master/omv-regen.sh | bash' \
+\n     'wget -O - https://raw.githubusercontent.com/xerzzh/omv-regen/master/omv-regen.sh | bash' \
 \n \
 \n- Copy the backup to the server, start 'omv-regen', and run regeneration. \
 \n \
@@ -706,7 +706,7 @@ txt AyudaOmvregen \
 \n     'apt-get update' \
 \n     'apt-get upgrade -y' \
 \n     'apt-get install wget -y' \
-\n     'wget -O - https://raw.githubusercontent.com/xhente/omv-regen/master/omv-regen.sh | bash' \
+\n     'wget -O - https://raw.githubusercontent.com/xerzzh/omv-regen/master/omv-regen.sh | bash' \
 \n \
 \n- Copy the backup to the server (WinSCP), start 'omv-regen', and run regeneration. omv-regen will install OMV and continue regeneration. \
 \n \
