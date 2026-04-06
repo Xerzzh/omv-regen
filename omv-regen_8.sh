@@ -313,9 +313,9 @@ IniciarAjustes() {
 InstalarEsp() {
     locale -a 2>/dev/null | grep -q '^es_' && return 0
     echoe ">>> Instalando idioma español ..."
-    sed -i 's/^# *es_ES.UTF-8 UTF-8/es_ES.UTF-8 UTF-8/' /etc/locale.gen | _orl
+    sed -i 's/^# *es_ES.UTF-8 UTF-8/es_ES.UTF-8 UTF-8/' /etc/locale.gen
     locale-gen | _orl
-    update-locale LANG=es_ES.UTF-8 LC_ALL=es_ES.UTF-8 | _orl
+    update-locale LANG=es_ES.UTF-8 LC_ALL=es_ES.UTF-8
     echoe ">>> Idioma español configurado correctamente."
 }
 
@@ -1501,10 +1501,10 @@ TraducirSiNo() { [ "$1" = "Si" ] && echo "${txt[Si]}" || echo "No"; }
 # Toggle between "Yes" and "No" the value of a key in CFG
 AlternarOpcion() {
     local clave="$1" texto_es="$2" texto_in="$3"
-    [[ -z "${CFG[$clave]}" ]] && Mensaje error "Clave inválida o no definida: $clave AlternarOpcion()" \
-                                               "Invalid or undefined key: $clave AlternarOpcion()" && return 1
-    [[ -z "$texto_es" ]] && Mensaje error "Texto vacío AlternarOpcion()" \
-                                          "Empty text AlternarOpcion()" && return 1
+    [[ -z "${CFG[$clave]}" ]] && { Mensaje error "Clave inválida o no definida: $clave AlternarOpcion()" \
+                                               "Invalid or undefined key: $clave AlternarOpcion()"; return 1; }
+    [[ -z "$texto_es" ]] && { Mensaje error "Texto vacío AlternarOpcion()" \
+                                          "Empty text AlternarOpcion()"; return 1; }
     
     if [[ "$clave" == "ActualizarOmvregen" ]]; then
         texto_es="\n          $texto_es\n \
@@ -1862,7 +1862,7 @@ EjecutarReinicioPendiente() {
         txt 2 "SEGUNDOS" "SECONDS"
         for ((i = 10; i >= 1; i--)); do echo -ne "\r${txt[1]} $i ${txt[2]} "; sleep 1; done
         echoe "\n>>> Reiniciando ..." "\n>>> Rebooting ..."
-        sync; sleep 0,5; reboot
+        sync; sleep 0.5; reboot
         sleep 3; exit
     fi
 }
@@ -2722,7 +2722,7 @@ GestionarBackups () {
                     nombre_sin_marca="$(dirname "$nombre_con_marca")/$(awk -F "$marca" '{print $1"_"$2}' <<< "$(basename "$nombre_con_marca")")"
                     echoe sil ">>> Eliminando retención ${txt[1]} del backup $nombre_sin_marca ..." \
                               ">>> Removing ${txt[1]} retention of the $nombre_sin_marca backup ..."
-                    mv "$nombre_con_marca" "$nombre_sin_marca" | _orl sil
+                    mv "$nombre_con_marca" "$nombre_sin_marca"
                 done <<< "$(find "${CFG[RutaBackups]}" -maxdepth 1 -type f -name "ORBackup_${fecha2}*${marca}*")"
             fi
         else
@@ -2747,7 +2747,7 @@ GestionarBackups () {
                 nombre_sin_marca="$(dirname "$nombre_con_marca")/$(awk -F "$marca" '{print $1"_"$2}' <<< "$(basename "$nombre_con_marca")")"
                 echoe sil ">>> Eliminando retención ${txt[1]} del backup $nombre_sin_marca ..." \
                           ">>> Removing ${txt[1]} retention of the $nombre_sin_marca backup ..."
-                mv "$nombre_con_marca" "$nombre_sin_marca" | _orl sil
+                mv "$nombre_con_marca" "$nombre_sin_marca"
             done <<< "$(find "${CFG[RutaBackups]}" -maxdepth 1 -type f -name "ORBackup_*${marca}*" -mtime "+$dias")"
         fi
     done
@@ -2844,8 +2844,8 @@ EjecutarBackup () {
     
     echoe sil ">>> Copiando el repositorio a $dir_regen ..." \
               ">>> Copying the repository to $dir_regen ..."
-    mkdir -p "${dir_regen}${OR_dir}/repo" | _orl sil
-    rsync -a ${OR_dir}/repo/ "${dir_regen}${OR_dir}/repo" | _orl sil || {
+    mkdir -p "${dir_regen}${OR_dir}/repo" || return 1
+    rsync -a "${OR_dir}/repo/" "${dir_regen}${OR_dir}/repo" | _orl sil || {
         error "Fallo al sincronizar el repositorio. Abortando ..." \
               "Failed to sync repository. Aborting ..."; return 1; }
 
@@ -2892,8 +2892,8 @@ EjecutarBackup () {
     echoe sil ">>> Copiando archivos esenciales a ${dir_regen} ..." \
               ">>> Copying essential files to ${dir_regen} ..."
     for archivo in "${ARCHIVOS_BACKUP[@]}"; do
-        [ ! -d "$(dirname "${dir_regen}${archivo}")" ] && mkdir -p "$(dirname "${dir_regen}${archivo}")" | _orl sil
-        cp -ap "$archivo" "${dir_regen}${archivo}" | _orl sil \
+        if [ ! -d "$(dirname "${dir_regen}${archivo}")" ]; then mkdir -p "$(dirname "${dir_regen}${archivo}")" || return 1; fi
+        cp -ap "$archivo" "${dir_regen}${archivo}" \
             || { error "Fallo copiando el archivo $archivo" \
                        "Failed to copy file $archivo"; return 1; }
     done
@@ -2913,19 +2913,20 @@ EjecutarBackup () {
     if [ -f "/etc/crypttab" ]; then
         echoe sil ">>> LUKS detectado, copiando información para la regeneración ..." \
                   ">>> LUKS detected, copying information for regeneration ..."
-        cp -ap "/etc/crypttab" "${dir_regen}/etc/crypttab" | _orl sil \
+        cp -ap "/etc/crypttab" "${dir_regen}/etc/crypttab" \
             || { error "Fallo copiando /etc/crypttab." \
                        "Failed to copy /etc/crypttab."; return 1; }
         if [ -s "/etc/crypttab" ]; then
-            awk 'NR>1{print $3}' /etc/crypttab | while IFS= read -r clave; do
+            while IFS= read -r clave; do
+                [ -z "$clave" ] && continue
                 ruta_destino="${dir_regen}${clave}"
-                [ ! -d "$(dirname "$ruta_destino")" ] && mkdir -p "$(dirname "$ruta_destino")" | _orl sil || return 1
+                if [ ! -d "$(dirname "$ruta_destino")" ]; then mkdir -p "$(dirname "$ruta_destino")" || return 1; fi
                 if [ -f "$clave" ]; then
-                    cp -ap "$clave" "$ruta_destino" | _orl sil \
+                    cp -ap "$clave" "$ruta_destino" \
                         || { error "No se pudo copiar $clave." \
                                    "Failed to copy $clave."; return 1; }
                 fi
-            done
+            done < <(awk 'NR>1{print $3}' /etc/crypttab)
         fi
     fi
 
@@ -2940,7 +2941,7 @@ EjecutarBackup () {
 
     echoe sil ">>> Empaquetando directorio $basename_regen en ${CFG[RutaBackups]}/ORBackup_${marca_fecha}_regen.tar.gz ..." \
               ">>> Packaging $basename_regen directory in ${CFG[RutaBackups]}/ORBackup_${marca_fecha}_regen.tar.gz ..."
-    tar --warning=no-file-ignored -czf "${CFG[RutaBackups]}/ORBackup_${marca_fecha}_regen.tar.gz" -C "${CFG[RutaBackups]}" "$basename_regen" | _orl sil || {
+    tar --warning=no-file-ignored -czf "${CFG[RutaBackups]}/ORBackup_${marca_fecha}_regen.tar.gz" -C "${CFG[RutaBackups]}" "$basename_regen" || {
         rm -f "${CFG[RutaBackups]}/ORBackup_${marca_fecha}_regen.tar.gz"
         error "Fallo empaquetando el archivo. Abortando ..." \
               "Failed to package the file. Aborting ..."; return 1; }
@@ -2973,7 +2974,7 @@ EjecutarBackup () {
             if [ -d "$carpeta" ]; then
                 echoe sil ">>> Empaquetando directorio $carpeta en ${CFG[RutaBackups]}/ORBackup_${marca_fecha}_user${n}.tar.gz ..." \
                           ">>> Packaging $carpeta directory in ${CFG[RutaBackups]}/ORBackup_${marca_fecha}_user${n}.tar.gz ..."
-                tar --warning=no-file-ignored -czf "${CFG[RutaBackups]}/ORBackup_${marca_fecha}_user${n}.tar.gz" -C / "${carpeta:1}" | _orl sil || {
+                tar --warning=no-file-ignored -czf "${CFG[RutaBackups]}/ORBackup_${marca_fecha}_user${n}.tar.gz" -C / "${carpeta:1}" || {
                     rm -f "${CFG[RutaBackups]}/ORBackup_${marca_fecha}_"*
                     error "Fallo empaquetando el archivo. Abortando ..." \
                           "Failed to package the file. Aborting ..."; return 1; }
@@ -2989,10 +2990,10 @@ EjecutarBackup () {
 
     echoe sil ">>> Actualizando el almacén de backups ..." \
               ">>> Updating the backup store ..."
-    find "${CFG[RutaBackups]}" -name "ORBackup_${marca_fecha}_*" | while IFS= read -r archivo; do
+    while IFS= read -r archivo; do
         nuevo_nombre="$(awk -F "_" '{print $1"_"$2"_"$3"_d_s_m_"$4}' <<< "$(basename "$archivo")")"
         mv "$archivo" "${CFG[RutaBackups]}/${nuevo_nombre}"
-    done
+    done < <(find "${CFG[RutaBackups]}" -name "ORBackup_${marca_fecha}_*")
     GestionarBackups || { error "No se pudo actualizar el almacén de backups." \
                                 "The backup store could not be updated."; return 1; }
 
@@ -3151,8 +3152,8 @@ Regenera_es_Valido() {
 ValidarChecksum() {
     local tar_regen_file="$1"
     local checksum_file="${tar_regen_file%tar.gz}sha256"
-    [ ! -f "$tar_regen_file" ] && error "Archivo TAR no encontrado: $tar_regen_file." \
-                                        "TAR file not found: $tar_regen_file." && exit 1
+    [ ! -f "$tar_regen_file" ] && { error "Archivo TAR no encontrado: $tar_regen_file." \
+                                        "TAR file not found: $tar_regen_file."; exit 1; }
 
     if [ ! -f "$checksum_file" ]; then
         error log "No se ha encontrado el archivo de checksum: $checksum_file" \
@@ -3317,9 +3318,9 @@ version_original_de() {
     local nombre_paquete=$1
     # Si el complemento openmediavault no está presente, significa que el archivo de regeneración no se cargó correctamente.
     # If the openmediavault plugin is not present, it means the regeneration file was not loaded correctly.
-    [ "${VERSION_ORIGINAL[openmediavault]}" = "" ] && \
+    [ "${VERSION_ORIGINAL[openmediavault]}" = "" ] && { \
         error "El array 'VERSION_ORIGINAL' está vacío." \
-              "The 'VERSION_ORIGINAL' array is empty." && exit 1
+              "The 'VERSION_ORIGINAL' array is empty."; exit 1; }
     echo "${VERSION_ORIGINAL[$nombre_paquete]:-"no_instalado"}"
 }
 
@@ -3350,8 +3351,8 @@ version_repo_regen_de() {
 version_repo_web_de() {
     local nombre_paquete=$1 version_repo_web
     version_repo_web=$(apt-cache madison "$nombre_paquete" 2>/dev/null | awk '{print $3}' | head -n1)
-    [ -z "$version_repo_web" ] && error "No se encontró versión en el repositorio web para el paquete: $nombre_paquete" \
-                                        "No version found in web repo for package: $nombre_paquete" && exit 1
+    [ -z "$version_repo_web" ] && { error "No se encontró versión en el repositorio web para el paquete: $nombre_paquete" \
+                                        "No version found in web repo for package: $nombre_paquete"; exit 1; }
     echo "$version_repo_web"
 }
 
@@ -3359,8 +3360,8 @@ version_disponible_de() {
     local nombre_paquete=$1 version_disponible
     version_disponible="$(find "$OR_repo_dir" -maxdepth 1 -name "${nombre_paquete}_*.deb" | awk -F "_" '{print $2}' | sort -V | tail -n1)"
     [ -z "$version_disponible" ] && version_disponible=$(apt-cache madison "$nombre_paquete" 2>/dev/null | awk '{print $3}' | head -n1)
-    [ -z "$version_disponible" ] && error "No se encontró versión en el repositorio web para el paquete: $nombre_paquete" \
-                                          "No version found in web repo for package: $nombre_paquete" && exit 1
+    [ -z "$version_disponible" ] && { error "No se encontró versión en el repositorio web para el paquete: $nombre_paquete" \
+                                          "No version found in web repo for package: $nombre_paquete"; exit 1; }
     echo "$version_disponible"
 }
 
@@ -3550,7 +3551,7 @@ Config_Actualizar() {
 	local tmpfile xpath=$1 valor=$2
 	tmpfile=$(mktemp)
 
-    if xmlstarlet edit -P -u "${xpath}" -v "${valor}" "${Config_xml_file}" | tee "${tmpfile}" >/dev/null; then
+    if xmlstarlet edit -P -u "${xpath}" -v "${valor}" "${Config_xml_file}" > "${tmpfile}"; then
         cat "${tmpfile}" >"${Config_xml_file}"
         rm -f -- "${tmpfile}"
     else
@@ -3638,7 +3639,12 @@ Regenera() {
 
             echoe ">>> Eliminando nodo $nodo actual ..." \
                   ">>> Deleting current $nodo node ..."
-            xmlstarlet edit -d "$nodo" "$Config_xml_file" > "$conf_xml_temp"
+            if ! xmlstarlet edit -d "$nodo" "$Config_xml_file" > "$conf_xml_temp"; then
+                error "Fallo eliminando nodo $nodo de la base de datos." \
+                      "Failed to delete node $nodo from the database."
+                cat "$conf_xml_copia" >"$Config_xml_file"
+                return 1
+            fi
             echoe ">>> Copiando etiqueta $etiqueta original ..." \
                   ">>> Copying original $etiqueta tag ..."
             if [ ! "$(awk 'END{print $0}' "$conf_xml_temp" )" = "</config>" ]; then
@@ -3651,7 +3657,7 @@ Regenera() {
                 echo "${nodo_ori}</config>" >>"$conf_xml_temp"
                 echoe ">>> Moviendo $etiqueta a $padre ..." \
                       ">>> Moving $etiqueta to $padre ..."
-                xmlstarlet edit -m "/config/$etiqueta" "$padre" "$conf_xml_temp" | tee "$Config_xml_file" >/dev/null
+                xmlstarlet edit -m "/config/$etiqueta" "$padre" "$conf_xml_temp" > "$Config_xml_file"
             fi
             if xmlstarlet val "$Config_xml_file"; then
                 echoe ">>> Nodo $nodo regenerado en la base de datos." \
@@ -3669,6 +3675,12 @@ Regenera() {
     return 0
 }
 
+# Filtra errores no fatales de blkid en la salida de SaltStack
+# Filters non-fatal blkid errors from SaltStack output
+_filtrar_salt_blkid() {
+    grep -vE "'blkid'|^\[ERROR[[:space:]]+\] retcode: 2$|^\[ERROR[[:space:]]+\] output:[[:space:]]*$"
+}
+
 # Aplica todos los modulos Salt si el testigo $Salt=1
 # Applies all Salt modules if the token $Salt= 1
 AplicarSalt() {
@@ -3684,15 +3696,22 @@ AplicarSalt() {
         /usr/bin/salt-call --local saltutil.clear_cache >/dev/null
         echoe ">>> Preparando la configuración con SaltStack ..." \
               ">>> Preparing the configuration with SaltStack ..."
-        omv-salt stage run prepare --quiet >/dev/null 2> >( _orl error ) || { 
+        omv-salt stage run prepare --quiet >/dev/null 2> >( _filtrar_salt_blkid | _orl error ) || {
             error "Fallo preparando configuración con SaltStack." \
                   "Failure preparing configuration with SaltStack."; return 1; }
         sleep 1
         echoe ">>> Aplicando los cambios de configuración con SaltStack (esto puede tardar un poco) ..." \
               ">>> Applying configuration changes with SaltStack (this may take a while) ..."
-        omv-salt stage run deploy --quiet >/dev/null 2> >( _orl error ) || { 
+        omv-salt stage run deploy --quiet >/dev/null 2> >( _filtrar_salt_blkid | _orl error ) || {
             error "Fallo aplicando cambios con SaltStack." \
                   "Failure applying changes with SaltStack."; return 1; }
+        # Reiniciar avahi-daemon si falló durante el deploy de Salt (fallo no fatal frecuente)
+        # Restart avahi-daemon if it failed during Salt deploy (frequent non-fatal failure)
+        if systemctl is-enabled avahi-daemon.service &>/dev/null && ! systemctl is-active avahi-daemon.service &>/dev/null; then
+            echoe ">>> Reiniciando avahi-daemon (falló durante el deploy de Salt) ..." \
+                  ">>> Restarting avahi-daemon (failed during Salt deploy) ..."
+            systemctl restart avahi-daemon.service 2>/dev/null || true
+        fi
         LimpiarSalt || return 1
         Salt=0
     else
@@ -3730,7 +3749,7 @@ ServicioReinicio() {
             if [ ! -f "$archivo" ]; then
                 echoe ">>> Creando servicio de ejecución automática tras reinicio ..." \
                       ">>> Creating auto-execution service after reboot ..."
-                cat << 'EOF' > $archivo
+                cat << 'EOF' > "$archivo"
 [Unit]
 Description=Autoejecución temporal de omv-regen tras el reinicio
 After=network-online.target
@@ -3850,7 +3869,7 @@ EjecutarRegenera() {
               ">>> Proceeding to create local repository with backup packages ..."
         CrearRepoLocal || { error "${txt[1]}"; LimpiarRegeneracion; return 1; }
 
-        if [ "$(estado_original_de "openmediavault-luksecryption")" = "instalado" ]; then
+        if [ "$(estado_original_de "openmediavault-luksencryption")" = "instalado" ]; then
             echoe ">>> Procediendo a almacenar claves LUKS ..." \
                   ">>> Proceeding to store LUKS keys ..."
             PrepararClavesLUKS || { error "${txt[1]}"; LimpiarRegeneracion; return 1; }
@@ -4056,7 +4075,7 @@ FijarVersionesOriginales() {
         echo -n "" > "$preferencias_file"
         for paquete in "${!VERSION_ORIGINAL[@]}"; do
             if [[ "$(estado_original_de "$paquete")" == "instalado" ]]; then
-                cat <<EOF >> $preferencias_file
+                cat <<EOF >> "$preferencias_file"
 Package: $paquete
 Pin: version $(version_original_de "$paquete")
 Pin-Priority: 1001
@@ -4198,9 +4217,9 @@ InstalaRegeneraSalt() {
 # Returns value 0 if a regeneration task is not done
 no_marcado() {
     local tarea=$1
-    [[ -z "$tarea" ]] && { error "Argumento vacio 'no_marcado'" "Empty argument 'no_marcado'"; exit 1; }
+    [[ -z "$tarea" ]] && { error "Argumento vacio 'no_marcado'" "Empty argument 'no_marcado'"; return 1; }
 
-    [[ "${CFG[EstatusRegenera]}" != *"$tarea"* ]] && return 0
+    [[ " ${CFG[EstatusRegenera]} " != *" $tarea "* ]] && return 0
     return 1
 }
 
@@ -4208,7 +4227,7 @@ no_marcado() {
 # Mark regeneration task 'done'. If $1 is phase_x, move on to the next; if not, mark the task as done.
 marcar() {
     local tarea=$1 num_fase
-    [[ -z "$tarea" ]] && { error "Argumento vacio 'marcar'" "Empty argument 'marcar'"; exit 1; }
+    [[ -z "$tarea" ]] && { error "Argumento vacio 'marcar'" "Empty argument 'marcar'"; return 1; }
 
     if [[ "$tarea" == "fase"* ]]; then
         num_fase="${tarea:5}"
@@ -4492,17 +4511,17 @@ RegeneraFase1() {
         if [ -f "${Carpeta_Regen}/etc/crypttab" ]; then
             echoe ">>> Restaurando claves LUKS desde el backup ..." \
                   ">>> Restoring LUKS keys from the backup ..."
-            awk 'NR>1{print $3}' "${Carpeta_Regen}/etc/crypttab" | while IFS= read -r clave; do
+            while IFS= read -r clave; do
                 [ -z "$clave" ] && continue
                 if [ ! -d "$(dirname "$clave")" ]; then
                     echoe ">>> Creando directorio $(dirname "$clave") ..." \
                           ">>> Creating directory $(dirname "$clave") ..."
-                    mkdir -p "$(dirname "$clave")" | _orl || { error "mkdir clave: $clave"; return 1; }
+                    mkdir -p "$(dirname "$clave")" || { error "mkdir clave: $clave"; return 1; }
                 fi
                 if [ -f "${Carpeta_Regen}${clave}" ]; then
                     echoe ">>> Restaurando clave $clave desde el backup ..." \
                           ">>> Restoring key $clave from the backup ..."
-                    cp -apv "${Carpeta_Regen}${clave}" "$clave" | _orl || { error "cp clave: $clave"; return 1; }
+                    cp -apv "${Carpeta_Regen}${clave}" "$clave" || { error "cp clave: $clave"; return 1; }
                 # Usar clave almacenada si no está en el backup
                 # Use stored key if not in the backup
                 elif grep -q "^$(basename "$clave")=" "$archivo_temporal_claves" 2>/dev/null; then
@@ -4516,7 +4535,7 @@ RegeneraFase1() {
                           "Key for $clave not found."
                     return 1
                 fi
-            done
+            done < <(awk 'NR>1{print $3}' "${Carpeta_Regen}/etc/crypttab")
         else
             echoe ">>> No se encontró archivo /etc/crypttab en el backup, no se restaurarán claves LUKS." \
                   ">>> /etc/crypttab not found in the backup, no LUKS keys will be restored."
@@ -4781,7 +4800,7 @@ RegeneraFase4() {
         echoe ">>> Configurando openmediavault-sharerootfs ..." \
               ">>> Configuring openmediavault-sharerootfs ..."
         uuid_sharerootfs="79684322-3eac-11ea-a974-63a080abab18"
-        if [ "$(omv_config_get_count "//mntentref[.='${uuid_sharerootfs}']" | _orl)" = "0" ]; then
+        if [ "$(omv_config_get_count "//mntentref[.='${uuid_sharerootfs}']")" = "0" ]; then
             omv-confdbadm delete --uuid "${uuid_sharerootfs}" "conf.system.filesystem.mountpoint" | _orl
         fi
         apt-get install --reinstall openmediavault-sharerootfs  | _orl || { 
@@ -4871,7 +4890,7 @@ RegeneraFase4() {
                         symlink_destino=$(awk -v i=$valor 'NR==i {print $1}' <<< "$destinos")
                         echoe ">>> Creando symlink $symlink_fuente $symlink_destino ..." \
                               ">>> Creating symlink $symlink_fuente $symlink_destino ..."
-                        ln -s "$symlink_fuente" "$symlink_destino" | _orl
+                        ln -s "$symlink_fuente" "$symlink_destino"
                     done
                 fi
             else
@@ -4893,13 +4912,13 @@ RegeneraFase5() {
     echoe "\n>>>   >>>    FASE Nº5: REGENERAR USUARIOS, CARPETAS COMPARTIDAS Y RESTO DE GUI.\n" \
           "\n>>>   >>>    PHASE Nº5: REGENERATE USERS, SHARED FOLDERS AND REST OF GUI.\n"
 
-    if no_marcado "archivos"; then
+    if no_marcado "archivos_fase5"; then
         echoe ">>> Restaurando archivos de sistema ..." \
               ">>> Restoring system files ..."
         rsync -av --exclude etc/openmediavault/config.xml --exclude usr/sbin/omv-regen --exclude var/lib/omv-regen/ "${Carpeta_Regen}"/ / | _orl \
             || { error "No se pudo sincronizar archivos." \
                        "Could not sync files."; return 1; }
-        marcar "archivos"
+        marcar "archivos_fase5"
     fi
 
     echoe "\n>>> Regenerando resto de GUI ..." \
@@ -4956,7 +4975,7 @@ RegeneraFase6() {
     fi
 
     if no_marcado "paquetes_apttol"; then
-        estado_actual="$(estado_actual_de "$paquete")"
+        estado_actual="$(estado_actual_de "openmediavault-apttool")"
         if [ "$estado_actual" = "instalado" ] || [ "$estado_actual" = "retenido" ]; then
             echoe ">>> Leyendo paquetes instalados mediante el complemento apttool ..." \
                   ">>> Reading packages installed using the apttool plugin ..."
@@ -4965,7 +4984,7 @@ RegeneraFase6() {
                 echoe ">>> La base de datos original no contiene paquetes instalados mediante el complemento apttool." \
                       ">>> The original database does not contain packages installed using the apttool plugin."
             else
-                dpkg_completo=$(awk '/^\[dpkg completo\]/{flag=1; next} /^\[/{flag=0} flag' "$OR_RegenInfo_file")
+                dpkg_completo=$(awk '/^\[dpkg completo\]/{flag=1; next} /^\[/{flag=0} flag' "${Carpeta_Regen}${OR_RegenInfo_file}")
                 while IFS= read -r paquete; do
                     if echo "$dpkg_completo" | grep -q "^$paquete "; then
                         echoe ">>> Instalando $paquete ..." \
