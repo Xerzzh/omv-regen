@@ -3703,8 +3703,17 @@ AplicarSalt() {
         echoe ">>> Aplicando los cambios de configuración con SaltStack (esto puede tardar un poco) ..." \
               ">>> Applying configuration changes with SaltStack (this may take a while) ..."
         omv-salt stage run deploy --quiet >/dev/null 2> >( _filtrar_salt_errores | _orl error ) || {
-            error "Fallo aplicando cambios con SaltStack." \
-                  "Failure applying changes with SaltStack."; return 1; }
+            # Salt deploy puede fallar por estados no críticos (avahi, bind mounts, blkid).
+            # No tratar como fatal durante regeneración ya que se resolverán en aplicaciones posteriores.
+            # Salt deploy may fail due to non-critical states (avahi, bind mounts, blkid).
+            # Don't treat as fatal during regeneration as they'll resolve in subsequent applies.
+            if [[ "${CFG[EstatusRegenera]}" =~ ^[0-9] ]]; then
+                echoe ">>> [AVISO] Salt deploy reportó errores no fatales. La regeneración continúa." \
+                      ">>> [WARNING] Salt deploy reported non-fatal errors. Regeneration continues."
+            else
+                error "Fallo aplicando cambios con SaltStack." \
+                      "Failure applying changes with SaltStack."; return 1
+            fi; }
         # Reiniciar avahi-daemon si falló durante el deploy de Salt (fallo no fatal frecuente)
         # Restart avahi-daemon if it failed during Salt deploy (frequent non-fatal failure)
         if systemctl is-enabled avahi-daemon.service &>/dev/null && ! systemctl is-active avahi-daemon.service &>/dev/null; then
@@ -4789,18 +4798,6 @@ RegeneraFase4() {
         fi
         marcar instalar_sharerootfs
     fi
-    # Instalar mergerfs antes de fstab para que los bind mounts a /srv/mergerfs/... funcionen
-    # Install mergerfs before fstab so bind mounts to /srv/mergerfs/... work
-    if no_marcado "mergerfs_pre_fstab"; then
-        if [ "$(estado_original_de "openmediavault-mergerfs")" != "no_instalado" ]; then
-            echoe ">>> Instalando openmediavault-mergerfs antes de regenerar fstab (requerido por bind mounts) ..." \
-                  ">>> Installing openmediavault-mergerfs before fstab regeneration (required by bind mounts) ..."
-            InstalaRegeneraSalt "openmediavault-mergerfs" || { error "Fallo procesando openmediavault-mergerfs ${txt[error]}" \
-                                                                      "Failed to process openmediavault-mergerfs ${txt[error]}"; return 1; }
-        fi
-        marcar "mergerfs_pre_fstab"
-    fi
-
     if no_marcado "hdparm-fstab"; then
         echoe ">>> Regenerar fstab (Sistemas de archivos EXT4 BTRFS)" \
               ">>> Regenerate fstab (EXT4 BTRFS file systems)"
